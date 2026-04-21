@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.0.5</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>ru.golshansky</groupId>
+    <artifactId>max-bot-api-java</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>max-bot-api-java</name>
+    <description>Java Spring Boot generator and client SDK for MAX Bot API based on official documentation</description>
+    <url>https://dev.max.ru/docs-api</url>
+
+    <modules>
+        <module>max-docs-generator</module>
+        <module>max-client-sdk</module>
+    </modules>
+
+    <properties>
+        <java.version>26</java.version>
+        <maven.compiler.release>${java.version}</maven.compiler.release>
+        <maven.compiler.parameters>true</maven.compiler.parameters>
+        <lombok.version>1.18.44</lombok.version>
+        <jsoup.version>1.18.3</jsoup.version>
+        <snakeyaml.version>2.3</snakeyaml.version>
+        <openapi-generator.version>7.15.0</openapi-generator.version>
+        <build-helper-maven-plugin.version>3.6.1</build-helper-maven-plugin.version>
+        <exec-maven-plugin.version>3.6.2</exec-maven-plugin.version>
+        <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
+        <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
+        <jackson-databind-nullable.version>0.2.8</jackson-databind-nullable.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring-boot-starter-parent.version>4.0.5</spring-boot-starter-parent.version>
+    </properties>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven-compiler-plugin.version}</version>
+                    <configuration>
+                        <release>${maven.compiler.release}</release>
+                        <parameters>${maven.compiler.parameters}</parameters>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </path>
+                            <path>
+                                <groupId>org.springframework.boot</groupId>
+                                <artifactId>spring-boot-configuration-processor</artifactId>
+                                <version>${spring-boot-starter-parent.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/licenses/MIT</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>golshansky</id>
+            <name>Grigory Olshansky</name>
+            <email>grigory@olshansky.im</email>
+            <url>https://github.com/hawkab</url>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <timezone>Europe/Moscow</timezone>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:https://github.com/hawkab/max-bot-api-java.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:hawkab/max-bot-api-java.git</developerConnection>
+        <url>https://github.com/hawkab/max-bot-api-java</url>
+    </scm>
+</project>

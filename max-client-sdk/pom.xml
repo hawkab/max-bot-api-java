@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>ru.golshansky</groupId>
+        <artifactId>max-bot-api-java</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>max-client-sdk</artifactId>
+    <name>max-client-sdk</name>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openapitools</groupId>
+            <artifactId>jackson-databind-nullable</artifactId>
+            <version>${jackson-databind-nullable.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>${openapi-generator.version}</version>
+                <executions>
+                    <execution>
+                        <id>generate-max-webclient</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/../max-docs-generator/target/generated-spec/max.openapi.yaml</inputSpec>
+                            <generatorName>java</generatorName>
+                            <library>webclient</library>
+                            <output>${project.build.directory}/generated/openapi</output>
+                            <generateApiTests>false</generateApiTests>
+                            <generateModelTests>false</generateModelTests>
+                            <generateApiDocumentation>false</generateApiDocumentation>
+                            <generateModelDocumentation>false</generateModelDocumentation>
+                            <generateSupportingFiles>true</generateSupportingFiles>
+                            <addCompileSourceRoot>false</addCompileSourceRoot>
+                            <configOptions>
+                                <apiPackage>ru.golshansky.maxbotapi.client.api</apiPackage>
+                                <modelPackage>ru.golshansky.maxbotapi.client.model</modelPackage>
+                                <invokerPackage>ru.golshansky.maxbotapi.client.invoker</invokerPackage>
+                                <dateLibrary>java8</dateLibrary>
+                                <serializationLibrary>jackson</serializationLibrary>
+                                <useJakartaEe>true</useJakartaEe>
+                                <useRuntimeException>true</useRuntimeException>
+                                <hideGenerationTimestamp>true</hideGenerationTimestamp>
+                                <useBeanValidation>false</useBeanValidation>
+                                <performBeanValidation>false</performBeanValidation>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>${maven-antrun-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>copy-generated-sources-to-src</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <mkdir dir="${project.basedir}/src/main/java" />
+                                <delete dir="${project.basedir}/src/main/java/ru/golshansky/maxbotapi/client" quiet="true" failonerror="false" />
+                                <copy todir="${project.basedir}/src/main/java" overwrite="true">
+                                    <fileset dir="${project.build.directory}/generated/openapi/src/main/java" />
+                                </copy>
+                                <replaceregexp file="${project.basedir}/src/main/java/ru/golshansky/maxbotapi/client/invoker/ApiClient.java"
+                                               byline="false"
+                                               flags="g"
+                                               match="defaultHeaders\.containsKey\("
+                                               replace="defaultHeaders.containsHeader(" />
+                                <replaceregexp file="${project.basedir}/src/main/java/ru/golshansky/maxbotapi/client/invoker/ApiClient.java"
+                                               byline="false"
+                                               flags="g"
+                                               match="headers\.entrySet\(\)"
+                                               replace="headers.headerSet()" />
+                                <delete dir="${project.build.directory}/generated/openapi/src/main/java" quiet="true" failonerror="false" />
+                                <delete dir="${project.parent.basedir}/gen" quiet="true" failonerror="false" />
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

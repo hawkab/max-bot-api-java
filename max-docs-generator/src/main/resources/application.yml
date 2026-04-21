@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: max-bot-api-java
+  main:
+    web-application-type: none
+
+max-docs:
+  root-url: https://dev.max.ru/docs-api
+  output-file: target/generated-spec/max.openapi.yaml
+  pause-seconds: 0.15

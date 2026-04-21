@@ -1,0 +1,2461 @@
+openapi: 3.0.3
+info:
+  title: Методы API MAX
+  version: generated
+  description: Сгенерировано 21:24:32 20.04.2026 на основе официальной документации [API MAX](https://dev.max.ru/docs-api)
+servers:
+- url: https://platform-api.max.ru
+security:
+- AccessTokenAuth: []
+paths:
+  /answers:
+    post:
+      tags:
+      - answers
+      summary: Ответ на callback
+      description: 'Этот метод используется для отправки ответа после того, как пользователь нажал на кнопку. Ответом может
+        быть обновленное сообщение и/или одноразовое уведомление для пользователя
+
+
+        Источник описания: [POST /answers](https://dev.max.ru/docs-api/methods/POST/answers)'
+      operationId: post_answers
+      security:
+      - AccessTokenAuth: []
+      x-source-url: https://dev.max.ru/docs-api/methods/POST/answers
+      parameters:
+      - name: callback_id
+        in: query
+        required: true
+        description: 'от 1 символа Идентификатор кнопки, по которой пользователь кликнул. Бот получает идентификатор как часть
+          Update с типом message_callback.
+
+
+          Можно получить из
+
+
+          GET:/updates через поле updates[i].callback.callback_id
+
+
+          Шаблон: `^(?!\s*$).+`'
+        schema:
+          type: string
+          pattern: ^(?!\s*$).+
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  $ref: '#/components/schemas/NewMessageBody'
+                  nullable: true
+                  description: Заполните это, если хотите изменить текущее сообщение
+                notification:
+                  type: string
+                  nullable: true
+                  description: Заполните это, если хотите просто отправить одноразовое уведомление пользователю
+      responses:
+        '200':
+          description: Ответ на callback
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: true, если запрос был успешным, false — в противном случае
+                  message:
+                    type: string
+                    description: Объяснительное сообщение, если результат не был успешным
+                required:
+                - success
+  /chats:
+    get:
+      tags:
+      - chats
+      summary: Получение списка всех групповых чатов
+      description: 'Возвращает список групповых чатов, в которых участвовал бот, информацию о каждом чате и маркер для перехода
+        к следующей странице списка
+
+
+        Источник описания: [GET /chats](https://dev.max.ru/docs-api/methods/GET/chats)'
+      operationId: get_chats
+      security:
+      - AccessTokenAuth: []
+      x-source-url: https://dev.max.ru/docs-api/methods/GET/chats
+      parameters:
+      - name: count
+        in: query
+        required: false
+        description: 'По умолчанию:
+
+
+          50 Количество запрашиваемых чатов
+
+
+          Диапазон: `[1-100]`'
+        schema:
+          type: integer
+          default: 50
+          x-range-hint: '[1-100]'
+      - name: marker
+        in: query
+        required: false
+        description: Указатель на следующую страницу данных. Для первой страницы передайте null
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Получение списка всех групповых чатов
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  chats:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Chat'
+                    description: Список запрашиваемых чатов
+                  marker:
+                    type: integer
+                    nullable: true
+                    description: Указатель на следующую страницу запрашиваемых чатов
+                required:
+                - chats
+  /chats/{chatId}:
+    delete:
+      tags:
+      - chats
+      summary: Удаление группового чата
+      description: 'Удаляет групповой чат для всех участников
+
+
+        Источник описания: [DELETE /chats/{chatId}](https://dev.max.ru/docs-api/methods/DELETE/chats/-chatId-)'
+      operationId: delete_chats_by_chatId
+      security:
+      - AccessTokenAuth: []
+      x-source-url: https://dev.max.ru/docs-api/methods/DELETE/chats/-chatId-
+      parameters:
+      - name: chatId
+        in: path
+        required: true
+        description: 'ID чата
+
+
+          Шаблон: `\-?\d+`'
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Удаление группового чата
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: true, если запрос был успешным, false — в противном случае
+                  message:
+                    type: string
+                    description: Объяснительное сообщение, если результат не был успешным
+                required:
+                - success
+    get:
+      tags:
+      - chats
+      summary: Получение информации о групповом чате
+      description: 'Возвращает информацию о групповом чате по его ID
+
+
+        Источник описания: [GET /chats/{chatId}](https://dev.max.ru/docs-api/methods/GET/chats/-chatId-)'
+      operationId: get_chats_by_chatId
+      security:
+      - AccessTokenAuth: []
+      x-source-url: https://dev.max.ru/docs-api/methods/GET/chats/-chatId-
+      parameters:
+      - name: chatId
+        in: path
+        required: true
+        description: 'ID запрашиваемого чата
+
+
+          Шаблон: `\-?\d+`'
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Получение информации о групповом чате
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chat'
+    patch:
+      tags:
+      - chats
+      summary: Изменение информации о групповом чате
+      description: 'Позволяет редактировать информацию о групповом чате, включая название, иконку и закреплённое сообщение
+
+
+        Источник описания: [PATCH /chats/{chatId}](https://dev.max.ru/docs-api/methods/PATCH/chats/-chatId-)'
+      operationId: patch_chats_by_chatId
+      security:
+      - AccessTokenAuth: []
+      x-source-url: https://dev.max.ru/docs-api/methods/PATCH/chats/-chatId-
+      parameters:
+      - name: chatId
+        in: path
+        required: true
+        description: 'ID чата
+
+
+          Шаблон: `\-?\d+`'
+        schema:
+          type: integer
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                icon:
+                  $ref: '#/components/schemas/PhotoAttachmentRequestPayload'
+                  nullable: true
+                  description: Запрос на прикрепление изображения (все поля являются взаимоисключающими)
+                title:
+                  type: string
+                  nullable: true
+                  description: от 1 до 200 символов
+                pin:
+                  type: string
+                  nullable: true
+                  description: ID сообщения для закрепления в чате. Чтобы удалить закреплённое сообщение, используйте метод
+                    unpin
+                notify:
+                  type: boolean
+                  nullable: true
+                  default: true
+                  description: 'По умолчанию:
+
+
+                    true Если true, участники получат системное уведомление об изменении'
+      responses:
+        '200':
+          description: Изменение информации о групповом чате
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chat'
+  /chats/{chatId}/actions:
+    post:
+      tags:
+      - chats
+      summary: Отправка действия бота в групповой чат
+      description: 'Позволяет отправлять в групповой чат такие действия бота, как например: «набор текста» или «отправка фото»
+
+
+        Источник описания: [POST /chats/{chatId}/actions](https://dev.max.ru/docs-api/methods/POST/chats/-chatId-/actions)'
+      operationId: post_chats_by_chatId_actions
+      security:
+      - AccessTokenAuth: []
+      x-source-url: https://dev.max.ru/docs-api/methods/POST/chats/-chatId-/actions
+      parameters:
+      - name: chatId
+        in: path
+        required: true
+        description: 'ID чата
+
+
+          Шаблон: `\-?\d+`'
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  description: 'Enum:
+
+
+                    "typing_on" "sending_photo" "sending_video" "sending_audio" "sending_file"
+
+
+                    Действие, отправляемое участникам чата. Возможные значения:
+
+
+                    "typing_on" — Бот набирает сообщение "sending_photo" — Бот отправляет фото "sending_video" — Бот отправляет
+                    видео "sending_audio" — Бот отправляет аудиофайл "sending_file" — Бот отправляет файл'
+              required:
+              - action
+      responses:
+        '200':
+          description: Отправка действия бота в групповой чат
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: true, если запрос был успешным, false — в противном случае
+                  message:
+                    type: string
+                    description: Объяснительное сообщение, если результат не был успешным
+                required:
+                - success
+  /chats/{chatId}/members:
+    delete:
+      tags:
+      - chats
+      summary: Удаление участника из группового чата
+      description: 'Удаляет участника из группового чата. Для этого могут потребоваться дополнительные права
+
+
+        Источник описания: [DELETE /chats/{chatId}/members](https://dev.max.ru/docs-api/methods/DELETE/chats/-chatId-/members)'
+      operationId: delete_chats_by_chatId_members
+      security:
+      - AccessTokenAuth: []
+      x-source-url: https://dev.max.ru/docs-api/methods/DELETE/chats/-chatId-/members
+      parameters:
+      - name: chatId
+        in: path
+        required: true
+        description: 'ID чата
+
+
+          Шаблон: `\-?\d+`'
+        schema:
+          type: integer
+      - name: user_id
+        in: query
+        required: true
+        description: ID пользователя, которого нужно удалить из чата
+        schema:
+          type: integer
+      - name: block
+        in: query
+        required: false
+        description: 'Если установлено в
+
+
+          true, пользователь будет заблокирован в чате. Применяется только для чатов с публичной или приватной ссылкой. Игнорируется
+          в остальных случаях'
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: Удаление участника из группового чата
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: true, если запрос был успешным, false — в противном случае
+                  message:
+                    type: string
+                    description: Объяснительное сообщение, если результат не был успешным
+                required:
+                - success
+    get:
+      tags:
+      - chats
+      summary: Получение участников группового чата
+      description: 'Возвращает список участников группового чата
+
+
+        Источник описания: [GET /chats/{chatId}/members](https://dev.max.ru/docs-api/methods/GET/chats/-chatId-/members)'
+      operationId: get_chats_by_chatId_members
+      security:
+      - AccessTokenAuth: []
+      x-source-url: https://dev.max.ru/docs-api/methods/GET/chats/-chatId-/members
+      parameters:
+      - name: chatId
+        in: path
+        required: true
+        description: 'ID чата
+
+
+          Шаблон: `\-?\d+`'
+        schema:
+          type: integer
+      - name: user_ids
+        in: query
+        required: false
+        description: Список ID пользователей, чье членство нужно получить. Когда этот параметр передан, параметры count и
+          marker игнорируются
+        schema:
+          type: array
+          items:
+            type: integer
+          nullable: true
+      - name: marker
+        in: query
+        required: false
+        description: Указатель на следующую страницу данных
+        schema:
+          type: integer
+      - name: count
+        in: query
+        required: false
+        description: 'По умолчанию:
+
+
+          "20" Количество участников, которых нужно вернуть
+
+
+          Диапазон: `[1-100]`'
+        schema:
+          type: integer
+          x-range-hint: '[1-100]'
+      responses:
+        '200':
+          description: Получение участников группового чата
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  members:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ChatMember'
+                    description: Список участников чата с информацией о времени последней активности
+                  marker:
+                    type: integer
+                    nullable: true
+                    description: Указатель на следующую страницу данных
+                required:
+                - members
+    post:
+      tags:
+      - chats
+      summary: Добавление участников в групповой чат
+      description: 'Добавляет участников в групповой чат. Для этого могут потребоваться дополнительные права
+
+
+        Источник описания: [POST /chats/{chatId}/members](https://dev.max.ru/docs-api/methods/POST/chats/-chatId-/members)'
+      operationId: post_chats_by_chatId_members
+      security:
+      - AccessTokenAuth: []
+      x-source-url: https://dev.max.ru/docs-api/methods/POST/chats/-chatId-/members
+      parameters:
+      - name: chatId
+        in: path
+        required: true
+        description: 'ID чата
+
+
+          Шаблон: `\-?\d+`'
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_ids:
+                  type: array
+                  items:
+                    type: integer
+                  description: Массив ID пользователей для добавления в чат
+              required:
+              - user_ids
+      responses:
+        '200':
+          description: Добавление участников в групповой чат
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: true, если запрос был успешным, false — в противном случае
+                  message:
+                    type: string
+                    description: Объяснительное сообщение, если результат не был успешным
+                  failed_user_ids:
+                    type: array
+                    items:
+                      type: integer
+                    nullable: true
+                    description: ID пользователей, которых не удалось добавить
+                  failed_user_details:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FailedUserDetails'
+                    nullable: true
+                    description: Подробное описание, почему пользователь не был добавлен в чат
+                required:
+                - success
+  /chats/{chatId}/members/admins:
+    get:
+      tags:
+      - chats
+      summary: Получение списка администраторов группового чата
+      description: 'Возвращает список всех администраторов группового чата. Бот должен быть администратором в запрашиваемом
+        чате
+
+
+        Источник описания: [GET /chats/{chatId}/members/admins](https://dev.max.ru/docs-api/methods/GET/chats/-chatId-/members/admins)'
+      operationId: get_chats_by_chatId_members_admins
+      security:
+      - AccessTokenAuth: []
+      x-source-url: https://dev.max.ru/docs-api/methods/GET/chats/-chatId-/members/admins
+      parameters:
+      - name: chatId
+        in: path
+        required: true
+        description: 'ID чата
+
+
+          Шаблон: `\-?\d+`'
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Получение списка администраторов группового чата
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  members:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ChatMember'
+                    description: Список участников чата с информацией о времени последней активности
+                  marker:
+                    type: integer
+                    nullable: true
+                    description: Указатель на следующую страницу данных
+                required:
+                - members
+    post:
+      tags:
+      - chats
+      summary: Назначить администратора группового чата
+      description: 'Возвращает значение true, если в групповой чат добавлены все администраторы
+
+
+        Источник описания: [POST /chats/{chatId}/members/admins](https://dev.max.ru/docs-api/methods/POST/chats/-chatId-/members/admins)'
+      operationId: post_chats_by_chatId_members_admins
+      security:
+      - AccessTokenAuth: []
+      x-source-url: https://dev.max.ru/docs-api/methods/POST/chats/-chatId-/members/admins
+      parameters:
+      - name: chatId
+        in: path
+        required: true
+        description: 'ID чата
+
+
+          Шаблон: `\-?\d+`'
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                admins:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ChatAdmin'
+                  description: Список пользователей, которые получат права администратора чата
+                marker:
+                  type: integer
+                  nullable: true
+                  description: Указатель на следующую страницу данных
+              required:
+              - admins
+      responses:
+        '200':
+          description: Назначить администратора группового чата
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: true, если запрос был успешным, false — в противном случае
+                  message:
+                    type: string
+                    description: Объяснительное сообщение, если результат не был успешным
+                required:
+                - success
+  /chats/{chatId}/members/admins/{userId}:
+    delete:
+      tags:
+      - chats
+      summary: Отменить права администратора в групповом чате
+      description: 'Отменяет права администратора у пользователя в групповом чате, лишая его административных привилегий
+
+
+        Источник описания: [DELETE /chats/{chatId}/members/admins/{userId}](https://dev.max.ru/docs-api/methods/DELETE/chats/-chatId-/members/admins/-userId-)'
+      operationId: delete_chats_by_chatId_members_admins_by_userId
+      security:
+      - AccessTokenAuth: []
+      x-source-url: https://dev.max.ru/docs-api/methods/DELETE/chats/-chatId-/members/admins/-userId-
+      parameters:
+      - name: chatId
+        in: path
+        required: true
+        description: 'ID чата
+
+
+          Шаблон: `\-?\d+`'
+        schema:
+          type: integer
+      - name: userId
+        in: path
+        required: true
+        description: Идентификатор пользователя
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Отменить права администратора в групповом чате
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: true, если запрос был успешным, false — в противном случае
+                  message:
+                    type: string
+                    description: Объяснительное сообщение, если результат не был успешным
+                required:
+                - success
+  /chats/{chatId}/members/me:
+    delete:
+      tags:
+      - chats
+      summary: Удаление бота из группового чата
+      description: 'Удаляет бота из участников группового чата
+
+
+        Источник описания: [DELETE /chats/{chatId}/members/me](https://dev.max.ru/docs-api/methods/DELETE/chats/-chatId-/members/me)'
+      operationId: delete_chats_by_chatId_members_me
+      security:
+      - AccessTokenAuth: []
+      x-source-url: https://dev.max.ru/docs-api/methods/DELETE/chats/-chatId-/members/me
+      parameters:
+      - name: chatId
+        in: path
+        required: true
+        description: 'ID чата
+
+
+          Шаблон: `\-?\d+`'
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Удаление бота из группового чата
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: true, если запрос был успешным, false — в противном случае
+                  message:
+                    type: string
+                    description: Объяснительное сообщение, если результат не был успешным
+                required:
+                - success
+    get:
+      tags:
+      - chats
+      summary: Получение информации о членстве бота в групповом чате
+      description: 'Возвращает информацию о членстве текущего бота в групповом чате. Бот идентифицируется с помощью токена
+        доступа
+
+
+        Источник описания: [GET /chats/{chatId}/members/me](https://dev.max.ru/docs-api/methods/GET/chats/-chatId-/members/me)'
+      operationId: get_chats_by_chatId_members_me
+      security:
+      - AccessTokenAuth: []
+      x-source-url: https://dev.max.ru/docs-api/methods/GET/chats/-chatId-/members/me
+      parameters:
+      - name: chatId
+        in: path
+        required: true
+        description: 'ID чата
+
+
+          Шаблон: `\-?\d+`'
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Получение информации о членстве бота в групповом чате
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatMember'
+  /chats/{chatId}/pin:
+    delete:
+      tags:
+      - chats
+      summary: Удаление закреплённого сообщения в групповом чате
+      description: 'Удаляет закреплённое сообщение в групповом чате
+
+
+        Источник описания: [DELETE /chats/{chatId}/pin](https://dev.max.ru/docs-api/methods/DELETE/chats/-chatId-/pin)'
+      operationId: delete_chats_by_chatId_pin
+      security:
+      - AccessTokenAuth: []
+      x-source-url: https://dev.max.ru/docs-api/methods/DELETE/chats/-chatId-/pin
+      parameters:
+      - name: chatId
+        in: path
+        required: true
+        description: 'ID чата, из которого нужно удалить закреплённое сообщение
+
+
+          Шаблон: `\-?\d+`'
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Удаление закреплённого сообщения в групповом чате
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: true, если запрос был успешным, false — в противном случае
+                  message:
+                    type: string
+                    description: Объяснительное сообщение, если результат не был успешным
+                required:
+                - success
+    get:
+      tags:
+      - chats
+      summary: Получение закреплённого сообщения в групповом чате
+      description: 'Возвращает закреплённое сообщение в групповом чате
+
+
+        Источник описания: [GET /chats/{chatId}/pin](https://dev.max.ru/docs-api/methods/GET/chats/-chatId-/pin)'
+      operationId: get_chats_by_chatId_pin
+      security:
+      - AccessTokenAuth: []
+      x-source-url: https://dev.max.ru/docs-api/methods/GET/chats/-chatId-/pin
+      parameters:
+      - name: chatId
+        in: path
+        required: true
+        description: 'ID чата
+
+
+          Шаблон: `\-?\d+`'
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Получение закреплённого сообщения в групповом чате
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    $ref: '#/components/schemas/Message'
+                    nullable: true
+                    description: Закреплённое сообщение. Может быть null, если в чате нет закреплённого сообщения
+    put:
+      tags:
+      - chats
+      summary: Закрепление сообщения в групповом чате
+      description: 'Закрепляет сообщение в групповом чате
+
+
+        Источник описания: [PUT /chats/{chatId}/pin](https://dev.max.ru/docs-api/methods/PUT/chats/-chatId-/pin)'
+      operationId: put_chats_by_chatId_pin
+      security:
+      - AccessTokenAuth: []
+      x-source-url: https://dev.max.ru/docs-api/methods/PUT/chats/-chatId-/pin
+      parameters:
+      - name: chatId
+        in: path
+        required: true
+        description: 'ID чата, где должно быть закреплено сообщение
+
+
+          Шаблон: `\-?\d+`'
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message_id:
+                  type: string
+                  description: ID сообщения, которое нужно закрепить. Соответствует полю Message.body.mid
+                notify:
+                  type: boolean
+                  nullable: true
+                  default: true
+                  description: 'По умолчанию:
+
+
+                    true Если true, участники получат уведомление с системным сообщением о закреплении'
+              required:
+              - message_id
+      responses:
+        '200':
+          description: Закрепление сообщения в групповом чате
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: true, если запрос был успешным, false — в противном случае
+                  message:
+                    type: string
+                    description: Объяснительное сообщение, если результат не был успешным
+                required:
+                - success
+  /me:
+    get:
+      tags:
+      - me
+      summary: Получение информации о боте
+      description: 'Метод возвращает информацию о боте, который идентифицируется с помощью токена доступа access_token. В
+        ответе приходит объект User с вариантом наследования BotInfo, который содержит идентификатор бота, его название, никнейм,
+        время последней активности, описание и аватар (при наличии)
+
+
+        Источник описания: [GET /me](https://dev.max.ru/docs-api/methods/GET/me)'
+      operationId: get_me
+      security:
+      - AccessTokenAuth: []
+      x-source-url: https://dev.max.ru/docs-api/methods/GET/me
+      responses:
+        '200':
+          description: Получение информации о боте
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BotInfo'
+  /messages:
+    get:
+      tags:
+      - messages
+      summary: Получение сообщений
+      description: 'Метод возвращает информацию о сообщении или массив сообщений из чата. Для выполнения запроса нужно указать
+        один из параметров — chat_id или message_ids:
+
+
+        - chat_id — метод возвращает массив сообщений из указанного чата. Сообщения возвращаются в обратном порядке: последние
+        сообщения будут первыми в массиве
+
+        - message_ids — метод возвращает информацию о запрошенных сообщениях. Можно указать один идентификатор или несколько
+
+
+        Источник описания: [GET /messages](https://dev.max.ru/docs-api/methods/GET/messages)'
+      operationId: get_messages
+      security:
+      - AccessTokenAuth: []
+      x-source-url: https://dev.max.ru/docs-api/methods/GET/messages
+      parameters:
+      - name: chat_id
+        in: query
+        required: false
+        description: ID чата, чтобы получить сообщения из определённого чата. Обязательный параметр, если не указан
+        schema:
+          type: integer
+      - name: message_ids
+        in: query
+        required: false
+        description: Список ID сообщений, которые нужно получить (через запятую). Обязательный параметр, если не указан chat_id
+        schema:
+          type: object
+          nullable: true
+      - name: from
+        in: query
+        required: false
+        description: Время начала для запрашиваемых сообщений (в формате Unix timestamp)
+        schema:
+          type: integer
+      - name: to
+        in: query
+        required: false
+        description: Время окончания для запрашиваемых сообщений (в формате Unix timestamp)
+        schema:
+          type: integer
+      - name: count
+        in: query
+        required: false
+        description: 'По умолчанию:
+
+
+          50 Максимальное количество сообщений в ответе
+
+
+          Диапазон: `[1-100]`'
+        schema:
+          type: integer
+          default: 50
+          x-range-hint: '[1-100]'
+      responses:
+        '200':
+          description: Получение сообщений
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  messages:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Message'
+                    description: Массив сообщений
+                required:
+                - messages
+    post:
+      tags:
+      - messages
+      summary: Отправить сообщение
+      description: 'Отправляет сообщение в чат
+
+
+        Источник описания: [POST /messages](https://dev.max.ru/docs-api/methods/POST/messages)'
+      operationId: post_messages
+      security:
+      - AccessTokenAuth: []
+      x-source-url: https://dev.max.ru/docs-api/methods/POST/messages
+      parameters:
+      - name: user_id
+        in: query
+        required: false
+        description: Если вы хотите отправить сообщение пользователю, укажите его ID
+        schema:
+          type: integer
+      - name: chat_id
+        in: query
+        required: false
+        description: Если сообщение отправляется в чат, укажите его ID
+        schema:
+          type: integer
+      - name: disable_link_preview
+        in: query
+        required: false
+        description: Если false, сервер не будет генерировать превью для ссылок в тексте сообщения
+        schema:
+          type: boolean
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewMessageBody'
+      responses:
+        '200':
+          description: Отправить сообщение
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    $ref: '#/components/schemas/Message'
+                    description: Сообщение в чате
+                required:
+                - message
+    put:
+      tags:
+      - messages
+      summary: Редактировать сообщение
+      description: 'Редактирует сообщение в чате. Если поле attachments равно null, вложения текущего сообщения не изменяются.
+        Если в этом поле передан пустой список, все вложения будут удалены
+
+
+        > С помощью метода можно отредактировать сообщения, которые отправлены менее 24 часов назад
+
+
+        Источник описания: [PUT /messages](https://dev.max.ru/docs-api/methods/PUT/messages)'
+      operationId: put_messages
+      security:
+      - AccessTokenAuth: []
+      x-source-url: https://dev.max.ru/docs-api/methods/PUT/messages
+      parameters:
+      - name: message_id
+        in: query
+        required: true
+        description: от 1 символа ID редактируемого сообщения
+        schema:
+          type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewMessageBody'
+      responses:
+        '200':
+          description: Редактировать сообщение
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: true, если запрос был успешным, false — в противном случае
+                  message:
+                    type: string
+                    description: Объяснительное сообщение, если результат не был успешным
+                required:
+                - success
+  /messages/{messageId}:
+    get:
+      tags:
+      - messages
+      summary: Получить сообщение
+      description: 'Возвращает сообщение по его ID
+
+
+        Источник описания: [GET /messages/{messageId}](https://dev.max.ru/docs-api/methods/GET/messages/-messageId-)'
+      operationId: get_messages_by_messageId
+      security:
+      - AccessTokenAuth: []
+      x-source-url: https://dev.max.ru/docs-api/methods/GET/messages/-messageId-
+      parameters:
+      - name: messageId
+        in: path
+        required: true
+        description: 'ID сообщения (mid), чтобы получить одно сообщение в чате
+
+
+          Шаблон: `[a-zA-Z0-9_\-]+`'
+        schema:
+          type: string
+          pattern: '[a-zA-Z0-9_\-]+'
+      responses:
+        '200':
+          description: Получить сообщение
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+  /subscriptions:
+    delete:
+      tags:
+      - subscriptions
+      summary: Отписка от обновлений
+      description: 'Отписывает бота от получения обновлений через Webhook. После вызова этого метода бот перестаёт получать
+        уведомления о новых событиях, и становится доступна доставка уведомлений через API с длительным опросом
+
+
+        Источник описания: [DELETE /subscriptions](https://dev.max.ru/docs-api/methods/DELETE/subscriptions)'
+      operationId: delete_subscriptions
+      security:
+      - AccessTokenAuth: []
+      x-source-url: https://dev.max.ru/docs-api/methods/DELETE/subscriptions
+      parameters:
+      - name: url
+        in: query
+        required: true
+        description: URL, который нужно удалить из подписок на WebHook
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Отписка от обновлений
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: true, если запрос был успешным, false — в противном случае
+                  message:
+                    type: string
+                    description: Объяснительное сообщение, если результат не был успешным
+                required:
+                - success
+    get:
+      tags:
+      - subscriptions
+      summary: Получение подписок
+      description: 'Если ваш бот получает данные через Webhook, этот метод возвращает список всех подписок. При настройке
+        уведомлений для production-окружения рекомендуем использовать Webhook
+
+
+        > Обратите внимание: для отправки вебхуков поддерживается только протокол HTTPS, включая самоподписанные сертификаты.
+        HTTP не поддерживается
+
+
+        Источник описания: [GET /subscriptions](https://dev.max.ru/docs-api/methods/GET/subscriptions)'
+      operationId: get_subscriptions
+      security:
+      - AccessTokenAuth: []
+      x-source-url: https://dev.max.ru/docs-api/methods/GET/subscriptions
+      responses:
+        '200':
+          description: Получение подписок
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  subscriptions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Subscription'
+                    description: Список текущих подписок
+                required:
+                - subscriptions
+    post:
+      tags:
+      - subscriptions
+      summary: Подписка на обновления
+      description: 'Метод настраивает доставку событий бота через Webhook — основной механизм получения событий в продуктовых
+        интеграциях. При активной подписке Long Polling не работает
+
+
+        После вызова метода события отправляются на указанный Webhook-endpoint в виде HTTPS POST-запросов с объектом Update
+
+
+        Как обрабатывается событие:
+
+
+        - При наступлении события выполняется вызов Webhook-endpoint
+
+        - Выполняется TLS-валидация целевого endpoint для безопасной передачи данных
+
+        - На endpoint отправляется HTTP-запрос
+
+        - Если при создании подписки указан secret, проверяется заголовок X-Max-Bot-Api-Secret
+
+        - При успешной валидации возвращается HTTP 200 OK
+
+        - Выполняется бизнес-логика обработки события
+
+        - Инициируются вызовы MAX API
+
+
+        Webhook-endpoint должен быть доступен по HTTPS на порту 443. Ваш сервер должен прослушивать этот порт. Порт в URL
+        не указывается:
+
+
+        > Поддерживается только порт 443. Если endpoint недоступен, события не доставляются
+
+
+        Перед отправкой событий устанавливается HTTPS-соединение и проверяется TLS-сертификат Webhook-endpoint. Это необходимо
+        для безопасной передачи информации
+
+
+        Требования к сертификату:
+
+
+        - сертификат выдан доверенным центром сертификации
+
+        - самоподписанные сертификаты не поддерживаются
+
+        - доменное имя в URL совпадает с CN или SAN сертификата
+
+        - сервер предоставляет полную цепочку сертификатов
+
+
+        > Если TLS-проверка не проходит, события не доставляются
+
+
+        Webhook-endpoint должен возвращать HTTP 200 в течение 30 секунд. Любой другой код ответа или превышение тайм-аута
+        — ошибка доставки
+
+
+        Источник описания: [POST /subscriptions](https://dev.max.ru/docs-api/methods/POST/subscriptions)'
+      operationId: post_subscriptions
+      security:
+      - AccessTokenAuth: []
+      x-source-url: https://dev.max.ru/docs-api/methods/POST/subscriptions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  description: URL HTTPS-endpoint вашего бота. Должен начинаться с https://
+                update_types:
+                  type: array
+                  items:
+                    type: string
+                  description: 'Пример:
+
+
+                    Список типов обновлений, которые хочет получать ваш бот. Для полного списка типов см. объект Update'
+                secret:
+                  type: string
+                  pattern: ^[a-zA-Z0-9_-]{5,256}$
+                  description: 'от 5 до 256 символов Cекрет, который должен быть отправлен в заголовке X-Max-Bot-Api-Secret
+                    в каждом запросе Webhook. Разрешены только символы A-Z, a-z, 0-9, и дефис. Заголовок рекомендован, чтобы
+                    запрос поступал из установленного веб-узла
+
+
+                    Шаблон: `^[a-zA-Z0-9_-]{5,256}$`'
+              required:
+              - url
+      responses:
+        '200':
+          description: Подписка на обновления
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: true, если запрос был успешным, false — в противном случае
+                  message:
+                    type: string
+                    description: Объяснительное сообщение, если результат не был успешным
+                required:
+                - success
+  /updates:
+    get:
+      tags:
+      - updates
+      summary: Получение обновлений
+      description: 'Этот метод можно использовать для получения обновлений при разработке и тестировании, если ваш бот не
+        подписан на Webhook. Для production-окружения рекомендуем использовать Webhook
+
+
+        Метод использует долгий опрос (long polling). Каждое обновление имеет свой номер последовательности. Свойство marker
+        в ответе указывает на следующее ожидаемое обновление.
+
+
+        Все предыдущие обновления считаются завершёнными после прохождения параметра marker. Если параметр marker не передан,
+        бот получит все обновления, произошедшие после последнего подтверждения
+
+
+        Источник описания: [GET /updates](https://dev.max.ru/docs-api/methods/GET/updates)'
+      operationId: get_updates
+      security:
+      - AccessTokenAuth: []
+      x-source-url: https://dev.max.ru/docs-api/methods/GET/updates
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        description: 'По умолчанию:
+
+
+          100 Максимальное количество обновлений для получения
+
+
+          Диапазон: `[1-1000]`'
+        schema:
+          type: integer
+          default: 100
+          x-range-hint: '[1-1000]'
+      - name: timeout
+        in: query
+        required: false
+        description: 'По умолчанию:
+
+
+          30 Тайм-аут в секундах для долгого опроса
+
+
+          Диапазон: `[0-90]`'
+        schema:
+          type: integer
+          default: 30
+          x-range-hint: '[0-90]'
+      - name: marker
+        in: query
+        required: false
+        description: Если передан, бот получит обновления, которые еще не были получены. Если не передан, получит все новые
+          обновления
+        schema:
+          type: integer
+          nullable: true
+      - name: types
+        in: query
+        required: false
+        description: 'Пример:
+
+
+          types=message_created,message_callback Список типов обновлений, которые бот хочет получить (например, message_created,
+          message_callback
+
+
+          Шаблон: `)`'
+        schema:
+          type: array
+          items:
+            type: string
+          nullable: true
+      responses:
+        '200':
+          description: Получение обновлений
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  updates:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Update'
+                    description: Страница обновлений
+                  marker:
+                    type: integer
+                    nullable: true
+                    description: Указатель на следующую страницу данных
+                required:
+                - updates
+  /uploads:
+    post:
+      tags:
+      - uploads
+      summary: Загрузка файлов
+      description: 'Возвращает URL для последующей загрузки файла
+
+
+        > Параметр type=photo больше не поддерживается. Если вы использовали type=photo в ранее созданных интеграциях — замените
+        его на type=image
+
+
+        Поддерживаются два типа загрузки:
+
+
+        - Multipart upload — более простой, но менее надёжный способ. В этом случае используется заголовок Content-Type: multipart/form-data.
+        Файл отправляется целиком одним запросом. Если загрузка прервётся, невозможно её возобновить — придётся начать заново
+
+        - Resumable upload — более надёжный способ, если заголовок Content-Type не равен multipart/form-data. Этот способ
+        позволяет загружать файл частями и возобновить загрузку с последней успешно загруженной части в случае ошибок
+
+
+        Общие ограничения для обоих типов загрузки:
+
+
+        - Максимальный размер файла: 4 ГБ
+
+        - Можно загружать только один файл за раз
+
+
+        Источник описания: [POST /uploads](https://dev.max.ru/docs-api/methods/POST/uploads)'
+      operationId: post_uploads
+      security:
+      - AccessTokenAuth: []
+      x-source-url: https://dev.max.ru/docs-api/methods/POST/uploads
+      parameters:
+      - name: type
+        in: query
+        required: true
+        description: 'Enum:
+
+
+          "image" "video" "audio" "file" Тип загружаемого файла
+
+
+          Поддерживаемые форматы:
+
+
+          image: JPG, JPEG, PNG, GIF, TIFF, BMP, HEIC video: MP4, MOV, MKV, WEBM, MATROSKA audio: MP3, WAV, M4A и другие file:
+          любые типы файлов Значение photo больше не поддерживается. Если вы использовали type=photo в ранее созданных интеграциях
+          — замените его на type=image'
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Загрузка файлов
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    description: URL для загрузки файла. Срок жизни ссылки не ограничен
+                  token:
+                    type: string
+                    description: Видео- или аудио-токен для отправки сообщения
+                required:
+                - url
+  /videos/{videoToken}:
+    get:
+      tags:
+      - videos
+      summary: Получить информацио о видео
+      description: 'Возвращает подробную информацию о прикреплённом видео. URL-адреса воспроизведения и дополнительные метаданные
+
+
+        Источник описания: [GET /videos/{videoToken}](https://dev.max.ru/docs-api/methods/GET/videos/-videoToken-)'
+      operationId: get_videos_by_videoToken
+      security:
+      - AccessTokenAuth: []
+      x-source-url: https://dev.max.ru/docs-api/methods/GET/videos/-videoToken-
+      parameters:
+      - name: videoToken
+        in: path
+        required: true
+        description: 'Токен видео-вложения
+
+
+          Шаблон: `[a-zA-Z0-9_\-]+`'
+        schema:
+          type: string
+          pattern: '[a-zA-Z0-9_\-]+'
+      responses:
+        '200':
+          description: Получить информацио о видео
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: Токен видео-вложения
+                  urls:
+                    $ref: '#/components/schemas/VideoUrls'
+                    nullable: true
+                    description: URL-ы для скачивания или воспроизведения видео. Может быть null, если видео недоступно
+                  thumbnail:
+                    $ref: '#/components/schemas/PhotoAttachmentPayload'
+                    nullable: true
+                    description: Миниатюра видео
+                  width:
+                    type: integer
+                    description: Ширина видео
+                  height:
+                    type: integer
+                    description: Высота видео
+                  duration:
+                    type: integer
+                    description: Длина видео в секундах
+                required:
+                - token
+                - width
+                - height
+                - duration
+components:
+  securitySchemes:
+    AccessTokenAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Access token MAX bot API
+  schemas:
+    BotInfo:
+      type: object
+      description: 'Объект включает общую информацию о боте, URL аватара и описание. Дополнительно содержит список команд,
+        поддерживаемых ботом. Возвращается только при вызове метода GET/me
+
+
+        Источник описания: [BotInfo](https://dev.max.ru/docs-api/objects/BotInfo)'
+      properties:
+        user_id:
+          type: integer
+          description: Идентификатор пользователя или бота
+        first_name:
+          type: string
+          description: Отображаемое имя пользователя или бота
+        last_name:
+          type: string
+          nullable: true
+          description: Отображаемая фамилия пользователя. Для ботов это поле не возвращается
+        username:
+          type: string
+          nullable: true
+          description: Никнейм бота или уникальное публичное имя пользователя. В случае с пользователем может быть null, если
+            тот недоступен или имя не задано
+        is_bot:
+          type: boolean
+          description: true, если это бот
+        last_activity_time:
+          type: integer
+          description: Время последней активности пользователя или бота в MAX (Unix-время в миллисекундах). Если пользователь
+            отключил в настройках профиля мессенджера MAX возможность видеть, что он в сети онлайн, поле может не возвращаться
+        name:
+          type: string
+          nullable: true
+          description: Устаревшее поле, скоро будет удалено
+        description:
+          type: string
+          nullable: true
+          description: до 16000 символов Описание пользователя или бота. В случае с пользователем может принимать значение
+            null, если описание не заполнено
+        avatar_url:
+          type: string
+          description: URL аватара пользователя или бота в уменьшенном размере
+        full_avatar_url:
+          type: string
+          description: URL аватара пользователя или бота в полном размере
+        commands:
+          type: array
+          items:
+            $ref: '#/components/schemas/BotCommand'
+          nullable: true
+          description: до 32 элементов Команды, поддерживаемые ботом
+      required:
+      - user_id
+      - first_name
+      - is_bot
+      - last_activity_time
+      x-source-url: https://dev.max.ru/docs-api/objects/BotInfo
+    Chat:
+      type: object
+      description: 'Источник описания: [Chat](https://dev.max.ru/docs-api/objects/Chat)'
+      properties:
+        chat_id:
+          type: integer
+          description: ID чата
+        type:
+          type: string
+          description: 'Enum:
+
+
+            "chat"
+
+
+            Тип чата:
+
+
+            "chat" — Групповой чат "channel" — Канал "dialog" — Диалог'
+        status:
+          type: string
+          description: 'Enum:
+
+
+            "active" "removed" "left" "closed"
+
+
+            Статус чата:
+
+
+            "active" — Бот является активным участником чата "removed" — Бот был удалён из чата "left" — Бот покинул чат "closed"
+            — Чат был закрыт'
+        title:
+          type: string
+          nullable: true
+          description: Отображаемое название чата. Может быть null для диалогов
+        icon:
+          $ref: '#/components/schemas/Image'
+          nullable: true
+          description: Иконка чата
+        last_event_time:
+          type: integer
+          description: Время последнего события в чате
+        participants_count:
+          type: integer
+          description: Количество участников чата. Для диалогов всегда 2
+        owner_id:
+          type: integer
+          nullable: true
+          description: ID владельца чата
+        participants:
+          type: object
+          nullable: true
+          description: Участники чата с временем последней активности. Может быть null, если запрашивается список чатов
+        is_public:
+          type: boolean
+          description: 'Доступен ли чат публично (для диалогов всегда false
+
+
+            Шаблон: `)`'
+        link:
+          type: string
+          nullable: true
+          description: Ссылка на чат
+        description:
+          type: string
+          nullable: true
+          description: Описание чата
+        dialog_with_user:
+          $ref: '#/components/schemas/UserWithPhoto'
+          nullable: true
+          description: 'Данные о пользователе в диалоге (только для чатов типа "dialog"
+
+
+            Шаблон: `)`'
+        chat_message_id:
+          type: string
+          nullable: true
+          description: ID сообщения, содержащего кнопку, через которую был инициирован чат
+        pinned_message:
+          $ref: '#/components/schemas/Message'
+          nullable: true
+          description: Закреплённое сообщение в чате (возвращается только при запросе конкретного чата)
+      required:
+      - chat_id
+      - type
+      - status
+      - last_event_time
+      - participants_count
+      - is_public
+      x-source-url: https://dev.max.ru/docs-api/objects/Chat
+    ChatMember:
+      type: object
+      description: 'Объект включает общую информацию о пользователе или боте, URL аватара и описание (при наличии). Дополнительно
+        содержит данные для пользователей-участников чата. Возвращается только при вызове некоторых методов группы/chats,
+        например GET/chats/{chatId}/members
+
+
+        Источник описания: [ChatMember](https://dev.max.ru/docs-api/objects/ChatMember)'
+      properties:
+        user_id:
+          type: integer
+          description: Идентификатор пользователя или бота
+        first_name:
+          type: string
+          description: Отображаемое имя пользователя или бота
+        last_name:
+          type: string
+          nullable: true
+          description: Отображаемая фамилия пользователя. Для ботов это поле не возвращается
+        username:
+          type: string
+          nullable: true
+          description: Никнейм бота или уникальное публичное имя пользователя. В случае с пользователем может быть null, если
+            тот недоступен или имя не задано
+        is_bot:
+          type: boolean
+          description: true, если это бот
+        last_activity_time:
+          type: integer
+          description: Время последней активности пользователя или бота в MAX (Unix-время в миллисекундах). Если пользователь
+            отключил в настройках профиля мессенджера MAX возможность видеть, что он в сети онлайн, поле может не возвращаться
+        name:
+          type: string
+          nullable: true
+          description: Устаревшее поле, скоро будет удалено
+        description:
+          type: string
+          nullable: true
+          description: до 16000 символов Описание пользователя или бота. В случае с пользователем может принимать значение
+            null, если описание не заполнено
+        avatar_url:
+          type: string
+          description: URL аватара пользователя или бота в уменьшенном размере
+        full_avatar_url:
+          type: string
+          description: URL аватара пользователя или бота в полном размере
+        last_access_time:
+          type: integer
+          description: Время последней активности пользователя в чате. Может быть устаревшим для суперчатов (равно времени
+            вступления)
+        is_owner:
+          type: boolean
+          description: Является ли пользователь владельцем чата
+        is_admin:
+          type: boolean
+          description: Является ли пользователь администратором чата
+        join_time:
+          type: integer
+          description: Дата присоединения к чату в формате Unix time
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatAdminPermission'
+          nullable: true
+          description: 'Items Enum:
+
+
+            "read_all_messages" "add_remove_members" "add_admins" "change_chat_info" "pin_message" "write" "can_call" "edit_link"
+            "post_edit_delete_message" "edit_message" "delete_message"
+
+
+            Перечень прав пользователя. Возможные значения:
+
+
+            "read_all_messages" — Читать все сообщения. "add_remove_members" — Добавлять/удалять участников. "add_admins"
+            — Добавлять администраторов. "change_chat_info" — Изменять информацию о чате. "pin_message" — Закреплять сообщения.
+            "write" — Писать сообщения. "edit_link" — Изменять ссылку на чат.'
+        alias:
+          type: string
+          description: 'Заголовок, который будет показан на клиенте
+
+
+            Если пользователь администратор или владелец и ему не установлено это название, то поле не передаётся, клиенты
+            на своей стороне подменят на "владелец" или "админ"'
+      required:
+      - user_id
+      - first_name
+      - is_bot
+      - last_activity_time
+      - last_access_time
+      - is_owner
+      - is_admin
+      - join_time
+      x-source-url: https://dev.max.ru/docs-api/objects/ChatMember
+    Message:
+      type: object
+      description: 'Сообщение в чате
+
+
+        Источник описания: [Message](https://dev.max.ru/docs-api/objects/Message)'
+      properties:
+        sender:
+          $ref: '#/components/schemas/User'
+          description: Пользователь, отправивший сообщение
+        recipient:
+          $ref: '#/components/schemas/Recipient'
+          description: Получатель сообщения. Может быть пользователем или чатом
+        timestamp:
+          type: integer
+          description: Время создания сообщения в формате Unix-time
+        link:
+          $ref: '#/components/schemas/LinkedMessage'
+          nullable: true
+          description: Пересланное или ответное сообщение
+        body:
+          $ref: '#/components/schemas/MessageBody'
+          description: Содержимое сообщения. Текст + вложения. Может быть null, если сообщение содержит только пересланное
+            сообщение
+        stat:
+          $ref: '#/components/schemas/MessageStat'
+          nullable: true
+          description: Статистика сообщения. Возвращается только для постов в каналах
+        url:
+          type: string
+          nullable: true
+          description: Публичная ссылка на пост в канале. Отсутствует для диалогов и групповых чатов
+      required:
+      - recipient
+      - timestamp
+      - body
+      x-source-url: https://dev.max.ru/docs-api/objects/Message
+    NewMessageBody:
+      type: object
+      description: 'Источник описания: [NewMessageBody](https://dev.max.ru/docs-api/objects/NewMessageBody)'
+      properties:
+        text:
+          type: string
+          nullable: true
+          description: до 4000 символов Новый текст сообщения
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttachmentRequest'
+          nullable: true
+          description: Вложения сообщения. Если пусто, все вложения будут удалены
+        link:
+          $ref: '#/components/schemas/NewMessageLink'
+          nullable: true
+          description: Ссылка на сообщение
+        notify:
+          type: boolean
+          default: true
+          description: 'По умолчанию:
+
+
+            true
+
+
+            Если false, участники чата не будут уведомлены (по умолчанию
+
+
+            true
+
+
+            Шаблон: `)`'
+        format:
+          type: string
+          nullable: true
+          description: 'Enum:
+
+
+            "markdown" "html"
+
+
+            Если установлен, текст сообщения будет форматирован данным способом. Для подробной информации загляните в раздел
+
+
+            Форматирование'
+      x-source-url: https://dev.max.ru/docs-api/objects/NewMessageBody
+    Update:
+      type: object
+      description: 'Объект Update представляет различные типы событий, произошедших в чате. См. его наследников Чтобы получать
+        события из группового чата или канала, назначьте бота администратором
+
+
+        Источник описания: [Update](https://dev.max.ru/docs-api/objects/Update)'
+      properties:
+        update_type:
+          type: string
+          description: message_created
+        timestamp:
+          type: integer
+          description: Unix-время, когда произошло событие
+        message:
+          $ref: '#/components/schemas/Message'
+          description: Новое созданное сообщение
+        user_locale:
+          type: string
+          nullable: true
+          description: Текущий язык пользователя в формате IETF BCP 47. Доступно только в диалогах
+      required:
+      - update_type
+      - timestamp
+      - message
+      x-source-url: https://dev.max.ru/docs-api/objects/Update
+    User:
+      type: object
+      description: 'Объект, описывающий один из вариантов наследования:
+
+
+        User — объект содержит общую информацию о пользователе или боте без аватара UserWithPhoto — объект с общей информацией
+        о пользователе или боте, дополнительно содержит URL аватара и описание BotInfo — объект включает общую информацию
+        о боте, URL аватара и описание. Дополнительно содержит список команд, поддерживаемых ботом. Возвращается только при
+        вызове метода GET/me ChatMember — объект включает общую информацию о пользователе или боте, URL аватара и описание
+        при его наличии. Дополнительно содержит данные для пользователей-участников чата. Возвращается только при вызове некоторых
+        методов группы/chats, например GET/chats/{chatId}/members
+
+
+        Источник описания: [User](https://dev.max.ru/docs-api/objects/User)'
+      properties:
+        user_id:
+          type: integer
+          description: Идентификатор пользователя или бота
+        first_name:
+          type: string
+          description: Отображаемое имя пользователя или бота
+        last_name:
+          type: string
+          nullable: true
+          description: Отображаемая фамилия пользователя. Для ботов это поле не возвращается
+        username:
+          type: string
+          nullable: true
+          description: Никнейм бота или уникальное публичное имя пользователя. В случае с пользователем может быть null, если
+            тот недоступен или имя не задано
+        is_bot:
+          type: boolean
+          description: true, если это бот
+        last_activity_time:
+          type: integer
+          description: Время последней активности пользователя или бота в MAX (Unix-время в миллисекундах). Если пользователь
+            отключил в настройках профиля мессенджера MAX возможность видеть, что он в сети онлайн, поле может не возвращаться
+        name:
+          type: string
+          nullable: true
+          description: Устаревшее поле, скоро будет удалено
+      required:
+      - user_id
+      - first_name
+      - is_bot
+      - last_activity_time
+      x-source-url: https://dev.max.ru/docs-api/objects/User
+    UserWithPhoto:
+      type: object
+      description: 'Объект с общей информацией о пользователе или боте, дополнительно содержит URL аватара и описание
+
+
+        Источник описания: [UserWithPhoto](https://dev.max.ru/docs-api/objects/UserWithPhoto)'
+      properties:
+        user_id:
+          type: integer
+          description: Идентификатор пользователя или бота
+        first_name:
+          type: string
+          description: Отображаемое имя пользователя или бота
+        last_name:
+          type: string
+          nullable: true
+          description: Отображаемая фамилия пользователя. Для ботов это поле не возвращается
+        username:
+          type: string
+          nullable: true
+          description: Никнейм бота или уникальное публичное имя пользователя. В случае с пользователем может быть null, если
+            тот недоступен или имя не задано
+        is_bot:
+          type: boolean
+          description: true, если это бот
+        last_activity_time:
+          type: integer
+          description: Время последней активности пользователя или бота в MAX (Unix-время в миллисекундах). Если пользователь
+            отключил в настройках профиля мессенджера MAX возможность видеть, что он в сети онлайн, поле может не возвращаться
+        name:
+          type: string
+          nullable: true
+          description: Устаревшее поле, скоро будет удалено
+        description:
+          type: string
+          nullable: true
+          description: до 16000 символов Описание пользователя или бота. В случае с пользователем может принимать значение
+            null, если описание не заполнено
+        avatar_url:
+          type: string
+          description: URL аватара пользователя или бота в уменьшенном размере
+        full_avatar_url:
+          type: string
+          description: URL аватара пользователя или бота в полном размере
+      required:
+      - user_id
+      - first_name
+      - is_bot
+      - last_activity_time
+      x-source-url: https://dev.max.ru/docs-api/objects/UserWithPhoto
+    AttachmentRequest:
+      type: object
+      description: 'Вложение при отправке сообщения. Тип определяет, какие поля payload или координаты должны быть заполнены.
+
+
+        Источник описания: [NewMessageBody](https://dev.max.ru/docs-api/objects/NewMessageBody)'
+      properties:
+        type:
+          type: string
+          description: Тип вложения
+          enum:
+          - image
+          - video
+          - audio
+          - file
+          - sticker
+          - contact
+          - inline_keyboard
+          - share
+          - location
+        payload:
+          $ref: '#/components/schemas/AttachmentRequestPayload'
+          description: Данные вложения. Набор обязательных полей зависит от type.
+        latitude:
+          type: number
+          nullable: true
+          description: Широта Обязательно, когда type=location.
+          x-required-when:
+          - type=location
+        longitude:
+          type: number
+          nullable: true
+          description: Долгота Обязательно, когда type=location.
+          x-required-when:
+          - type=location
+      required:
+      - type
+      x-required-by-type:
+        image:
+        - payload.url | payload.token | payload.photos
+        video:
+        - payload.token
+        audio:
+        - payload.token
+        file:
+        - payload.token
+        sticker:
+        - payload.code
+        contact:
+        - payload.contact_id | payload.name + payload.vcf_info | payload.name + payload.vcf_phone
+        inline_keyboard:
+        - payload.buttons
+        share: []
+        location:
+        - latitude
+        - longitude
+    BotCommand:
+      type: object
+      description: 'Источник описания: [BotInfo](https://dev.max.ru/docs-api/objects/BotInfo)'
+      properties:
+        name:
+          type: string
+          description: Имя команды
+        description:
+          type: string
+          nullable: true
+          description: Описание команды
+      required:
+      - name
+    ChatAdmin:
+      type: object
+      description: 'Источник описания: [POST /chats/{chatId}/members/admins](https://dev.max.ru/docs-api/methods/POST/chats/-chatId-/members/admins)'
+      properties:
+        user_id:
+          type: integer
+          description: ID пользователя
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatAdminPermission'
+          nullable: true
+          description: Права администратора
+        alias:
+          type: string
+          nullable: true
+          description: Псевдоним администратора
+      required:
+      - user_id
+    ChatAdminPermission:
+      type: object
+      description: Автоматически добавленный placeholder для типа ChatAdminPermission, найденного в документации.
+      additionalProperties: true
+    FailedUserDetails:
+      type: object
+      description: 'Источник описания: [POST /chats/{chatId}/members](https://dev.max.ru/docs-api/methods/POST/chats/-chatId-/members)'
+      properties:
+        user_id:
+          type: integer
+          nullable: true
+          description: ID пользователя
+        message:
+          type: string
+          nullable: true
+          description: Текст ошибки
+        code:
+          type: string
+          nullable: true
+          description: Код ошибки
+    Image:
+      type: object
+      description: 'Иконка чата
+
+
+        Источник описания: [Chat](https://dev.max.ru/docs-api/objects/Chat)'
+      properties:
+        url:
+          type: string
+          description: URL изображения
+    LinkedMessage:
+      type: object
+      description: 'Пересланное или ответное сообщение
+
+
+        Источник описания: [Message](https://dev.max.ru/docs-api/objects/Message)'
+      properties:
+        type:
+          type: string
+          description: Тип связи сообщения
+          enum:
+          - forward
+          - reply
+        sender:
+          $ref: '#/components/schemas/User'
+          nullable: true
+          description: Отправитель связанного сообщения
+        chat_id:
+          type: integer
+          nullable: true
+          description: ID чата, откуда пришло связанное сообщение
+        message:
+          $ref: '#/components/schemas/MessageBody'
+          description: Тело связанного сообщения
+      required:
+      - type
+      - message
+    MessageBody:
+      type: object
+      description: 'Содержимое сообщения. Текст + вложения. Может быть null, если сообщение содержит только пересланное сообщение
+
+
+        Источник описания: [Message](https://dev.max.ru/docs-api/objects/Message)'
+      properties:
+        mid:
+          type: string
+          description: ID сообщения
+        seq:
+          type: integer
+          description: Порядковый номер сообщения
+        text:
+          type: string
+          nullable: true
+          description: Текст сообщения
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+          nullable: true
+          description: Вложения сообщения. Могут быть одним из типов Attachment
+        markup:
+          type: array
+          items:
+            $ref: '#/components/schemas/MarkupElement'
+          nullable: true
+          description: Разметка текста сообщения
+      required:
+      - mid
+      - seq
+    MessageStat:
+      type: object
+      description: 'Статистика сообщения. Возвращается только для постов в каналах
+
+
+        Источник описания: [Message](https://dev.max.ru/docs-api/objects/Message)'
+      properties:
+        views:
+          type: integer
+          description: Количество просмотров сообщения
+      required:
+      - views
+    NewMessageLink:
+      type: object
+      description: 'Ссылка на сообщение
+
+
+        Источник описания: [NewMessageBody](https://dev.max.ru/docs-api/objects/NewMessageBody)'
+      properties:
+        type:
+          type: string
+          description: Тип связи сообщения
+          enum:
+          - forward
+          - reply
+        mid:
+          type: string
+          nullable: true
+          description: ID сообщения
+        chat_id:
+          type: integer
+          nullable: true
+          description: ID чата
+    PhotoAttachmentPayload:
+      type: object
+      description: 'Источник описания: [GET /videos/{videoToken}](https://dev.max.ru/docs-api/methods/GET/videos/-videoToken-)'
+      properties:
+        url:
+          type: string
+          description: URL изображения
+    PhotoAttachmentRequestPayload:
+      type: object
+      description: 'Источник описания: [PATCH /chats/{chatId}](https://dev.max.ru/docs-api/methods/PATCH/chats/-chatId-)'
+      properties:
+        url:
+          type: string
+          description: URL изображения
+    Recipient:
+      type: object
+      description: 'Получатель сообщения. Может быть пользователем или чатом
+
+
+        Источник описания: [Message](https://dev.max.ru/docs-api/objects/Message)'
+      properties:
+        chat_id:
+          type: integer
+          nullable: true
+          description: ID чата
+        chat_type:
+          type: string
+          description: Тип чата получателя
+        user_id:
+          type: integer
+          nullable: true
+          description: ID пользователя-получателя
+      required:
+      - chat_type
+    Subscription:
+      type: object
+      description: 'Источник описания: [GET /subscriptions](https://dev.max.ru/docs-api/methods/GET/subscriptions)'
+      properties:
+        url:
+          type: string
+          description: Webhook URL
+        update_types:
+          type: array
+          items:
+            type: string
+          nullable: true
+          description: Типы обновлений
+        secret:
+          type: string
+          nullable: true
+          description: Секрет Webhook
+      required:
+      - url
+    VideoUrls:
+      type: object
+      description: 'URL-ы для скачивания или воспроизведения видео. Может быть null, если видео недоступно
+
+
+        Источник описания: [GET /videos/{videoToken}](https://dev.max.ru/docs-api/methods/GET/videos/-videoToken-)'
+      properties:
+        mp4:
+          type: string
+          nullable: true
+          description: Ссылка на MP4
+        hls:
+          type: string
+          nullable: true
+          description: Ссылка на HLS
+        download:
+          type: string
+          nullable: true
+          description: Ссылка на скачивание
+    Attachment:
+      type: object
+      description: 'Вложение сообщения. Тип определяет, какие поля payload и дополнительные атрибуты обычно присутствуют.
+
+
+        Источник описания: [Message](https://dev.max.ru/docs-api/objects/Message)'
+      properties:
+        type:
+          type: string
+          description: Тип вложения
+          enum:
+          - image
+          - video
+          - audio
+          - file
+          - sticker
+          - contact
+          - inline_keyboard
+          - share
+          - location
+        payload:
+          $ref: '#/components/schemas/AttachmentPayload'
+          description: Данные вложения. Набор обязательных полей зависит от type.
+        filename:
+          type: string
+          nullable: true
+          description: Имя файла Обязательно, когда type=file.
+          x-required-when:
+          - type=file
+        size:
+          type: integer
+          nullable: true
+          description: Размер файла Обязательно, когда type=file.
+          x-required-when:
+          - type=file
+        width:
+          type: integer
+          nullable: true
+          description: Ширина медиа Обязательно, когда type in {image, video}.
+          x-required-when:
+          - type in {image, video}
+        height:
+          type: integer
+          nullable: true
+          description: Высота медиа Обязательно, когда type in {image, video}.
+          x-required-when:
+          - type in {image, video}
+        duration:
+          type: integer
+          nullable: true
+          description: Длительность медиа в секундах Обязательно, когда type in {video, audio}.
+          x-required-when:
+          - type in {video, audio}
+        thumbnail:
+          type: string
+          nullable: true
+          description: Миниатюра видео Обязательно, когда type=video.
+          x-required-when:
+          - type=video
+        title:
+          type: string
+          nullable: true
+          description: Заголовок вложения Обязательно, когда type=share.
+          x-required-when:
+          - type=share
+        description:
+          type: string
+          nullable: true
+          description: Описание вложения Обязательно, когда type=share.
+          x-required-when:
+          - type=share
+        image_url:
+          type: string
+          nullable: true
+          description: URL изображения для share-вложения Обязательно, когда type=share.
+          x-required-when:
+          - type=share
+        latitude:
+          type: number
+          nullable: true
+          description: Широта Обязательно, когда type=location.
+          x-required-when:
+          - type=location
+        longitude:
+          type: number
+          nullable: true
+          description: Долгота Обязательно, когда type=location.
+          x-required-when:
+          - type=location
+      required:
+      - type
+      x-required-by-type:
+        image:
+        - payload.photo_id
+        - payload.url
+        video:
+        - duration
+        - thumbnail
+        audio:
+        - duration
+        file:
+        - filename
+        - size
+        sticker:
+        - payload.code
+        contact: []
+        inline_keyboard: []
+        share:
+        - title
+        - description
+        - image_url
+        location:
+        - latitude
+        - longitude
+    AttachmentRequestPayload:
+      type: object
+      description: 'Объединённая best-effort схема payload для AttachmentRequest. Поля объединены по всем типам вложений,
+        которые переключаются в UI документации.
+
+
+        Источник описания: [NewMessageBody](https://dev.max.ru/docs-api/objects/NewMessageBody)'
+      properties:
+        token:
+          type: string
+          nullable: true
+          description: Токен загруженного медиафайла Обязательно, когда type in {video, audio, file}; type=image при отправке
+            изображения через upload token.
+          x-required-when:
+          - type in {video, audio, file}
+          - type=image при отправке изображения через upload token
+        url:
+          type: string
+          nullable: true
+          description: URL изображения Обязательно, когда type=image при отправке изображения по URL.
+          x-required-when:
+          - type=image при отправке изображения по URL
+        photos:
+          type: object
+          nullable: true
+          description: Набор вариантов изображения по ключам Обязательно, когда type=image при отправке изображения набором
+            вариантов.
+          x-required-when:
+          - type=image при отправке изображения набором вариантов
+        name:
+          type: string
+          nullable: true
+          description: Имя контакта Обязательно, когда type=contact при передаче карточки контакта в явном виде.
+          x-required-when:
+          - type=contact при передаче карточки контакта в явном виде
+        contact_id:
+          type: integer
+          nullable: true
+          description: ID контакта Обязательно, когда type=contact при передаче контакта по идентификатору.
+          x-required-when:
+          - type=contact при передаче контакта по идентификатору
+        vcf_info:
+          type: string
+          nullable: true
+          description: VCF-данные контакта Обязательно, когда type=contact при передаче контакта как vCard.
+          x-required-when:
+          - type=contact при передаче контакта как vCard
+        vcf_phone:
+          type: string
+          nullable: true
+          description: Телефон контакта Обязательно, когда type=contact при передаче контакта как vCard/телефонной карточки.
+          x-required-when:
+          - type=contact при передаче контакта как vCard/телефонной карточки
+        code:
+          type: string
+          nullable: true
+          description: Код стикера Обязательно, когда type=sticker.
+          x-required-when:
+          - type=sticker
+        buttons:
+          type: array
+          items:
+            type: array
+            items:
+              type: object
+          nullable: true
+          description: Кнопки inline-клавиатуры Обязательно, когда type=inline_keyboard.
+          x-required-when:
+          - type=inline_keyboard
+    MarkupElement:
+      type: object
+      description: 'Источник описания: [Message](https://dev.max.ru/docs-api/objects/Message)'
+      properties:
+        type:
+          type: string
+          description: Тип элемента разметки
+        from:
+          type: integer
+          description: Начальная позиция
+        length:
+          type: integer
+          description: Длина диапазона
+        user_link:
+          type: string
+          nullable: true
+          description: Ссылка на пользователя
+        user_id:
+          type: integer
+          nullable: true
+          description: ID пользователя
+      required:
+      - type
+      - from
+      - length
+    AttachmentPayload:
+      type: object
+      description: 'Объединённая best-effort схема payload для Attachment. Поля объединены по всем типам вложений, которые
+        переключаются в UI документации.
+
+
+        Источник описания: [Message](https://dev.max.ru/docs-api/objects/Message)'
+      properties:
+        photo_id:
+          type: integer
+          format: int64
+          nullable: true
+          description: Уникальный ID изображения Обязательно, когда type=image.
+          x-required-when:
+          - type=image
+        token:
+          type: string
+          nullable: true
+          description: Токен вложения Используется, когда type in {image, video, audio, file} при наличии серверного media
+            token.
+          x-used-when:
+          - type in {image, video, audio, file} при наличии серверного media token
+        url:
+          type: string
+          nullable: true
+          description: URL изображения или медиафайла Обязательно, когда type=image.
+          x-required-when:
+          - type=image
+        filename:
+          type: string
+          nullable: true
+          description: Имя файла Обязательно, когда type=file.
+          x-required-when:
+          - type=file
+        size:
+          type: integer
+          nullable: true
+          description: Размер файла Обязательно, когда type=file.
+          x-required-when:
+          - type=file
+        code:
+          type: string
+          nullable: true
+          description: Код стикера Обязательно, когда type=sticker.
+          x-required-when:
+          - type=sticker
